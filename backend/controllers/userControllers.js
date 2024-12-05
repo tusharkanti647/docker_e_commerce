@@ -1,13 +1,13 @@
 import { User } from "../models/user.model.js";
 import bcrypt from "bcryptjs";
-import { OAuth2Client } from "google-auth-library";
+// import { OAuth2Client } from "google-auth-library";
 import jwt from "jsonwebtoken";
 
 export const register = async (req, res) => {
   try {
-    const { name, email, password, reyTypePassword } = req.body;
-    console.log(name, email, password, reyTypePassword);
-    if (!name || !email || !password || !reyTypePassword) {
+    const { name, username, email, password, reyTypePassword } = req.body;
+    console.log(name, username, email, password, reyTypePassword);
+    if (!name || !username || !email || !password || !reyTypePassword) {
       return res
         .status(400)
         .json({ message: "Something went missing.", success: false });
@@ -24,7 +24,7 @@ export const register = async (req, res) => {
 
     // await User.create({ name, email, password: hashPassWord })
 
-    const user = new User({ name, email, password: hashPassWord });
+    const user = new User({ name, username, email, password: hashPassWord });
 
     const response = await user.save();
     let userId = response._id;
@@ -57,41 +57,33 @@ export const register = async (req, res) => {
   }
 };
 
-export const googleLogin = async (req, res) => {
+
+/////admin sign up --------------------------------------------------------------
+export const adminRegister = async (req, res) => {
   try {
-    const { googleToken } = req.body;
-    const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
-
-    const client = new OAuth2Client(GOOGLE_CLIENT_ID);
-
-    const ticket = await client.verifyIdToken({
-      idToken: googleToken,
-      audience: GOOGLE_CLIENT_ID,
-    });
-
-    const payload = ticket.getPayload();
-    const { sub, email, name, picture } = payload;
-
+    const { name, username, email, password, reyTypePassword, userType } = req.body;
+    console.log(name, username, email, password, reyTypePassword);
+    if (!name || !username || !email || !password || !reyTypePassword || !userType) {
+      return res
+        .status(400)
+        .json({ message: "Something went missing.", success: false });
+    }
     const existUser = await User.findOne({ email: email });
-    let userId, newUser;
-
-    //if user is already exist then send the login token
-    //if not exist then create a new one user and send the login token
-    if (!existUser) {
-      // await User.create({ name, email })
-      const user = new User({
-        name,
-        email,
+    if (existUser) {
+      return res.status(400).json({
+        message: "User already exist with this email.",
+        success: false,
       });
-
-      const response = await user.save();
-      userId = response._id;
-      newUser = response;
-    } else {
-      userId = existUser._id;
-      newUser = existUser;
     }
 
+    const hashPassWord = await bcrypt.hash(password, 10);
+
+    // await User.create({ name, email, password: hashPassWord })
+
+    const user = new User({ name, username, email, password: hashPassWord, userType });
+
+    const response = await user.save();
+    let userId = response._id;
     const tokenData = {
       userId,
     };
@@ -108,10 +100,11 @@ export const googleLogin = async (req, res) => {
         sameSite: "strict",
       })
       .json({
-        message: `Welcome back ${newUser.name}`,
+        message: "Account created successfully",
         success: true,
-        newUser,
+        user,
       });
+    // return res.status(200).json({ message: 'Account created successfully', success: true });
   } catch (e) {
     console.log("ERROR", e);
     return res
@@ -119,6 +112,7 @@ export const googleLogin = async (req, res) => {
       .json({ message: "Internal Server Error.", success: false });
   }
 };
+
 
 export const login = async (req, res) => {
   try {
@@ -197,6 +191,21 @@ export const authCheck = (req, res) => {
 export const logOut = async (req, res) => {
   try {
     return res.status(200).cookie("JWTToken", "", { maxAge: 0 }).json({
+      message: "Logged out successfully",
+      success: true,
+    });
+  } catch (e) {
+    console.log("ERROR", e);
+    return res
+      .status(500)
+      .json({ message: "Internal Server Error.", success: false });
+  }
+};
+
+
+export const testGet = async (req, res) => {
+  try {
+    return res.status(200).json({
       message: "Logged out successfully",
       success: true,
     });
