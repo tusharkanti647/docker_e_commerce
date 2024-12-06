@@ -6,10 +6,12 @@ import {
   getOneProduct,
   deleteProduct,
   updateProduct,
+
 } from "../controllers/productControllers.js";
 import {
   isAuthenticated,
   isAuthenticatedAdmin,
+  upload
 } from "../middlewares/authenticated.js";
 // import isAuthenticated from '../middlewares/authenticated';
 
@@ -21,13 +23,13 @@ router
   .post(isAuthenticated, isAuthenticatedAdmin, addProduct);
 router
   .route("/imgUload")
-  .post(isAuthenticated, isAuthenticatedAdmin, isAuthenticatedAdmin, imgUload);
+  .post(isAuthenticated, isAuthenticatedAdmin, isAuthenticatedAdmin, upload.single("productPhoto"), imgUload);
 router
   .route("/deleteProduct")
-  .get(isAuthenticated, isAuthenticatedAdmin, deleteProduct);
+  .delete(isAuthenticated, isAuthenticatedAdmin, deleteProduct);
 router
   .route("/updateProduct")
-  .get(isAuthenticated, isAuthenticatedAdmin, updateProduct);
+  .put(isAuthenticated, isAuthenticatedAdmin, updateProduct);
 router.route("/productGet").get(productGet);
 router.route("/getOneProduct").get(getOneProduct);
 

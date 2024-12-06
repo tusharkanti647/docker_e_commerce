@@ -1,4 +1,9 @@
+import multer from "multer";
+import path from "path";
 import { Product } from "../models/product.model.js";
+
+
+
 //product Post path
 //-------------------------------------------------------------------------------
 export const addProduct = async (req, res) => {
@@ -63,9 +68,23 @@ export const addProduct = async (req, res) => {
 
 //Product photo upload path
 //-----------------------------------------------------------------------------
+// Configure storage
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/'); // Upload folder
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + path.extname(file.originalname)); // Unique filename
+  },
+});
+
+
+
+
 export const imgUload = async (req, res) => {
   try {
-    let _id = req.params.id;
+    //req.query.quizId
+    let _id = req.query.productId;
     console.log(_id);
     //const car = await carModel.findOne({_id});
     //console.log(car);
@@ -73,7 +92,7 @@ export const imgUload = async (req, res) => {
       { _id: _id },
       {
         $set: {
-          productPhoto: `http://localhost:8000/car/${req.file.filename}`,
+          productPhoto: `http://localhost:8000/product/${req.file.filename}`,
         },
       }
     );
@@ -93,11 +112,21 @@ export const productGet = async (req, res) => {
   try {
     // if (req.id) {
     const data = await Product.find();
+
+    if(!data){
+      return res
+            .status(500)
+            .json({ message: "Product dos not exist.", success: false });
+          }
+
+
     return res.status(200).json({
       message: "Product add successfully",
       success: true,
       data,
     });
+
+
     // } else {
     //   res.status(404).send("please login first");
     // }
@@ -113,16 +142,16 @@ export const productGet = async (req, res) => {
 //----------------------------------------------------------------------------
 export const getOneProduct = async (req, res) => {
   try {
-    if (req.id) {
-      const data = await carModel.findById(req.params.id);
-      return res.status(200).json({
-        message: "Product get successfully",
-        success: true,
-        data,
-      });
-    } else {
-      res.status(404).send("please login first");
-    }
+    // if (req.id) {
+    const data = await Product.findById(req.query.productId);
+    return res.status(200).json({
+      message: "Product get successfully",
+      success: true,
+      data,
+    });
+    // } else {
+    //   res.status(404).send("please login first");
+    // }
   } catch (err) {
     console.log("ERROR", err);
     return res
@@ -136,7 +165,7 @@ export const getOneProduct = async (req, res) => {
 export const updateProduct = async (req, res) => {
   try {
     if (req.id) {
-      let _id = req.params.id;
+      let _id = req.query.productId;
       const {
         productName,
         productDetails,
@@ -150,7 +179,7 @@ export const updateProduct = async (req, res) => {
         productDiscount,
       } = req.body;
 
-      const data = await carModel.updateOne(
+      const data = await Product.updateOne(
         { _id: _id },
         {
           $set: {
@@ -188,7 +217,7 @@ export const updateProduct = async (req, res) => {
 export const deleteProduct = async (req, res) => {
   try {
     if (req.id) {
-      let _id = req.params.id;
+      let _id = req.query.productId;
 
       const data = await Product.deleteOne({ _id });
       console.log(data);

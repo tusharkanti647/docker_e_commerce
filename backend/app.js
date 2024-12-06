@@ -32,6 +32,7 @@ app.post("/set-cookie", (req, res) => {
   res.send({ message: "Cookie has been set!" });
 });
 
+app.use("/product", express.static("./product"))
 app.use("/userApi", userRoute);
 app.use("/productApi", productRoute);
 

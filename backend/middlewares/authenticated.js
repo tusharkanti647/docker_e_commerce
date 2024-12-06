@@ -1,5 +1,7 @@
 import jwt from "jsonwebtoken";
 import { User } from "../models/user.model.js";
+import multer from 'multer';
+import path from "path";
 
 export const isAuthenticated = async (req, res, next) => {
   console.log("hjhdsdh");
@@ -46,3 +48,18 @@ export const isAuthenticatedAdmin = async (req, res, next) => {
       .json({ message: "Internal Server Error.", success: false });
   }
 };
+
+
+
+
+//--------------------------------------------------------------------------------------------------------
+const storage = multer.diskStorage({
+  destination: "./product",
+  filename: (req, file, cb) => {
+    return cb(null, `${file.fieldname}_${Date.now()}${path.extname(file.originalname)}`)
+  }
+})
+
+export const upload = multer({
+  storage: storage,
+});
