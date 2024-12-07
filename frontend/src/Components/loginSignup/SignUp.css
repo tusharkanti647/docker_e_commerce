@@ -1,0 +1,118 @@
+.signUpDiv {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* flex-direction: column; */
+  /* background-color: aqua; */
+}
+.signUpLeft {
+  width: 50vw;
+  height: 100vh;
+  background-color: #f0f2f5;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+.centerStyle {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.form-container {
+  width: 300px;
+
+  /* padding: 20px; */
+  /* border: 1px solid rgb(22, 167, 54); */
+  border-radius: 10px;
+  /* background-color: #f9f9f9; */
+}
+.signUpDivInner {
+  flex-direction: column;
+  width: 50vw;
+  /* margin: 0 auto; */
+  padding-left: 10%;
+  color: gray;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 5px;
+  font-size: 14px;
+  color: #333;
+}
+
+input {
+  width: 100%;
+  padding: 8px;
+  font-size: 14px;
+  border: none;
+  border-bottom: 1px solid #ccc;
+  /* border-radius: 5px; */
+
+  outline: none;
+}
+
+input:focus {
+  /* border-color: #007bff; */
+  border-color: rgb(0, 0, 0);
+}
+
+.error-message {
+  color: #ff0000;
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+.termsdiv input {
+  width: 20px !important;
+}
+.termsdiv {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.termsdiv span {
+  color: black;
+  font-weight: bold;
+}
+
+.submit-button {
+  margin-top: 40px;
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  color: #fff;
+  background-color: rgb(58, 56, 56);
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.submit-button:hover {
+  background-color: black;
+}
+
+.signInForgot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.signUpHeader span {
+  color: rgb(33, 238, 77);
+  cursor: pointer;
+  font-weight: bold;
+}
+.signUpLink:hover {
+  color: green;
+}
