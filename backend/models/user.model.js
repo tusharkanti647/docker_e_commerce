@@ -28,9 +28,13 @@ const userSchema = new mongoose.Schema(
     },
 
     userCarts: {
-      completedQuiz: [
+      cartItems: [
         {
           productId: { type: mongoose.Schema.Types.ObjectId, ref: "Product" },
+          quantity: {
+            type: "number",
+            default: 1,
+          },
         },
       ],
     },

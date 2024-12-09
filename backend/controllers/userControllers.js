@@ -2,12 +2,14 @@ import { User } from "../models/user.model.js";
 import bcrypt from "bcryptjs";
 // import { OAuth2Client } from "google-auth-library";
 import jwt from "jsonwebtoken";
+import { Product } from "../models/product.model.js";
 
+//user signUp ---------------------------------------------------
 export const register = async (req, res) => {
   try {
-    const { name, username, email, password, reyTypePassword } = req.body;
-    console.log(name, username, email, password, reyTypePassword);
-    if (!name || !username || !email || !password || !reyTypePassword) {
+    const { name, username, email, password } = req.body;
+    console.log(name, username, email, password);
+    if (!name || !username || !email || !password) {
       return res
         .status(400)
         .json({ message: "Something went missing.", success: false });
@@ -57,13 +59,12 @@ export const register = async (req, res) => {
   }
 };
 
-
 /////admin sign up --------------------------------------------------------------
 export const adminRegister = async (req, res) => {
   try {
-    const { name, username, email, password, reyTypePassword, userType } = req.body;
-    console.log(name, username, email, password, reyTypePassword);
-    if (!name || !username || !email || !password || !reyTypePassword || !userType) {
+    const { name, username, email, password, userType } = req.body;
+    console.log(name, username, email, password);
+    if (!name || !username || !email || !password || !userType) {
       return res
         .status(400)
         .json({ message: "Something went missing.", success: false });
@@ -80,7 +81,13 @@ export const adminRegister = async (req, res) => {
 
     // await User.create({ name, email, password: hashPassWord })
 
-    const user = new User({ name, username, email, password: hashPassWord, userType });
+    const user = new User({
+      name,
+      username,
+      email,
+      password: hashPassWord,
+      userType,
+    });
 
     const response = await user.save();
     let userId = response._id;
@@ -113,7 +120,7 @@ export const adminRegister = async (req, res) => {
   }
 };
 
-
+//login ---------------------------------------------
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -166,7 +173,7 @@ export const login = async (req, res) => {
   }
 };
 
-// Authentication Check
+// Authentication Check --------------------------------------------------------
 export const authCheck = (req, res) => {
   // const userId = req.id;
   const userId = req.id;
@@ -188,6 +195,115 @@ export const authCheck = (req, res) => {
   }
 };
 
+// get the user  --------------------------------------------------------
+export const getUser = async (req, res) => {
+  // const userId = req.id;
+  const userId = req.id;
+  console.log(userId);
+  try {
+    if (userId) {
+      const user = await User.findById(userId);
+      return res
+        .status(200)
+        .json({ authenticated: true, user: user, success: true });
+    } else
+      return res.status(401).json({
+        authenticated: false,
+        message: "Invalid token",
+        success: false,
+      });
+  } catch (error) {
+    console.log(error);
+    res.status(401).json({ authenticated: false });
+  }
+};
+// get the user cart --------------------------------------------------------
+export const getUserCart = async (req, res) => {
+  // const userId = req.id;
+  const userId = req.id;
+  console.log(userId);
+  try {
+    if (userId) {
+      const user = await User.findById(userId);
+      let curtProductList = [];
+      for (let i = 0; i < user.userCarts.cartItems.length; i++) {
+        let product = await Product.findById(
+          user.userCarts.cartItems[i].productId
+        );
+        curtProductList.push(product);
+      }
+
+      return res.status(200).json({
+        authenticated: true,
+        userCarts: user.userCarts,
+        curtProductList: curtProductList,
+        success: true,
+      });
+    } else
+      return res.status(401).json({
+        authenticated: false,
+        message: "Invalid token",
+        success: false,
+      });
+  } catch (error) {
+    console.log(error);
+    res.status(401).json({ authenticated: false });
+  }
+};
+
+// add product to the user cart --------------------------------------------------------
+export const addToCart = async (req, res) => {
+  // const userId = req.id;
+  const userId = req.id;
+  console.log(userId);
+  try {
+    if (userId) {
+      const productId = req.query.productId;
+      const user = await User.findById(userId);
+      // Validate productId format
+      if (!mongoose.Types.ObjectId.isValid(productId)) {
+        return res
+          .status(400)
+          .json({ error: "Invalid product ID.", success: false });
+      }
+
+      // Check if the product already exists in the cart
+      const existingCartItem = user.userCarts.cartItems.find(
+        (item) => item.productId.toString() === productId
+      );
+
+      if (existingCartItem) {
+        // Increment the quantity if the product already exists in the cart
+        existingCartItem.quantity += 1;
+      } else {
+        // Add the new product to the cart with a default quantity of 1
+        user.userCarts.cartItems.push({ productId, quantity: 1 });
+      }
+      await user.save();
+      res.status(200).json({
+        message: "Product added to cart successfully.",
+        cart: user.userCarts,
+        success: true,
+      });
+    } else
+      return res.status(401).json({
+        authenticated: false,
+        message: "Invalid token",
+        success: false,
+      });
+  } catch (error) {
+    console.log(error);
+    res
+      .status(401)
+      .json({
+        authenticated: false,
+        error: "Something went wrong.",
+        success: false,
+      });
+  }
+};
+
+// log out application Check --------------------------------------------------------
 export const logOut = async (req, res) => {
   try {
     return res.status(200).cookie("JWTToken", "", { maxAge: 0 }).json({
@@ -201,8 +317,7 @@ export const logOut = async (req, res) => {
       .json({ message: "Internal Server Error.", success: false });
   }
 };
-
-
+// test Check --------------------------------------------------------
 export const testGet = async (req, res) => {
   try {
     return res.status(200).json({
